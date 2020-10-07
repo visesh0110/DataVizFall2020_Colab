@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Line Chart </title>
+    <script src="lib/d3/d3.min.js"></script>
+
+</head>
+<body>
+<div id="container" style="width:100%">
+  <svg width="60%" height="80%" style="background-color: #efefef"
+     viewBox="0 0 800 400">
+</svg>
+</div>
+<script>
+    let svg = d3.select('svg');
+    d3.csv("data/data_sample.csv",d3.autoType).then(function (data) {
+        let EC = d3.max(d3.map(data,function(d) {return d.EstimatedCost}))
+        let RM = d3.max(d3.map(data,function(d){return d.RawMaterial}))
+        let dates = d3.extent(data,function(d){return d.date;})
+        console.log(EC)
+        console.log(dates)
+
+        let wide = 40;
+        let scaleX = d3.scaleTime().domain(dates).range([wide,800-wide])
+        let scaleY = d3.scaleLinear().domain([0,d3.max([EC,RM])]).range([400-wide,wide])
+
+        let l1 = d3.line()
+            .x(function (d){return scaleX(d.date)})
+            .y(function (d){return scaleY(d.EstimatedCost)})
+
+        let l2 = d3.line()
+            .x(function (d){return scaleX(d.date)})
+            .y(function (d){return scaleY(d.RawMaterial)})
+
+        let path1 = svg.append('path')
+            .data([data])
+            .attr("d",l1)
+            .style("fill","none")
+            .style("stroke","black")
+            .style("stroke-width","2px")
+        let path2 = svg.append('path')
+            .data([data])
+            .attr("d",l2)
+            .style("fill","none")
+            .style("stroke","green")
+            .style("stroke-width","2px")
+
+        svg.append("g")
+            .attr("transform", "translate(0,380)")      // This controls the vertical position of the Axis
+            .call(d3.axisBottom(scaleX));
+
+        svg.append("g").attr("transform", "translate(30,0)").call(d3.axisLeft(scaleY));
+
+    }
+    )
+
+</script>
+</body>
+</html>
